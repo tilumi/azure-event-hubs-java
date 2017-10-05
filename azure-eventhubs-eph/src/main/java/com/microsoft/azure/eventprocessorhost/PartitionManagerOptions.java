@@ -97,8 +97,18 @@ public class PartitionManagerOptions
 		this.checkpointTimeoutInSeconds = timeout;
 	}
 	
+	/***
+	 * Gets the timeout for lease operations. Defaults to DefaultLeaseDurationInSeconds.
+	 * 
+	 * @return
+	 */
 	public int getLeaseOperationTimeoutInSeconds() { return this.leaseOperationTimeoutInSeconds; }
 	
+	/***
+	 * Sets the timeout for lease operations. Must be greater than 0.
+	 * 
+	 * @param timeout
+	 */
 	public void setLeaseOperationTimeoutInSeconds(int timeout)
 	{
 		if (timeout <= 0)
