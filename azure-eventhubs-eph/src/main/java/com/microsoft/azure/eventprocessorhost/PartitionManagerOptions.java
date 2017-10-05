@@ -25,6 +25,7 @@ public class PartitionManagerOptions
 	protected int leaseDurationInSeconds = PartitionManagerOptions.DefaultLeaseDurationInSeconds;
 	protected int leaseRenewIntervalInSeconds = PartitionManagerOptions.DefaultLeaseRenewIntervalInSeconds;
 	protected int checkpointTimeoutInSeconds = PartitionManagerOptions.DefaultCheckpointTimeoutInSeconds;
+	protected int leaseOperationTimeoutInSeconds = PartitionManagerOptions.DefaultLeaseDurationInSeconds;
 	
 	public PartitionManagerOptions()
 	{
@@ -94,5 +95,16 @@ public class PartitionManagerOptions
 			throw new IllegalArgumentException("Checkpoint timeout must be greater than 0");
 		}
 		this.checkpointTimeoutInSeconds = timeout;
+	}
+	
+	public int getLeaseOperationTimeoutInSeconds() { return this.leaseOperationTimeoutInSeconds; }
+	
+	public void setLeaseOperationTimeoutInSeconds(int timeout)
+	{
+		if (timeout <= 0)
+		{
+			throw new IllegalArgumentException("Lease operation timeout must be greater than 0");
+		}
+		this.leaseOperationTimeoutInSeconds = timeout;
 	}
 }
