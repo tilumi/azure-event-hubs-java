@@ -25,6 +25,7 @@ public class PrefabGeneralErrorHandler implements Consumer<ExceptionReceivedEven
 	@Override
 	public void accept(ExceptionReceivedEventArgs e)
 	{
+		System.out.println("GENERAL ERROR: " + e.getHostname() + " " + e.getAction() + " " + e.getException().toString() + " " + e.getException().getMessage());
 		this.errors.add("GENERAL: " + e.getHostname() + " " + e.getAction() + " " + e.getException().toString() + " " + e.getException().getMessage());
 	}
 }

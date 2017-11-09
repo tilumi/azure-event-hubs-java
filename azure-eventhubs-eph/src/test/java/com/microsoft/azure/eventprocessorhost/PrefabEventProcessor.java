@@ -57,11 +57,11 @@ public class PrefabEventProcessor implements IEventProcessor
 			batchSize++;
 			if (((this.eventCount % 100) == 0) && this.doMarker)
 			{
-				TestUtilities.console(context.getPartitionId());
+				TestUtilities.console("Received 100 on " + context.getPartitionId() + "\n");
 			}
 			if (this.logEveryMessage)
 			{
-				//TestUtilities.log("P" + context.getPartitionId() + " " + new String(event.getBody()) + " @ " + event.getSystemProperties().getOffset() + "\n");
+				TestUtilities.log("P" + context.getPartitionId() + " " + new String(event.getBody()) + " @ " + event.getSystemProperties().getOffset() + "\n");
 			}
 			if (Arrays.equals(event.getBytes(), this.telltaleBytes))
 			{

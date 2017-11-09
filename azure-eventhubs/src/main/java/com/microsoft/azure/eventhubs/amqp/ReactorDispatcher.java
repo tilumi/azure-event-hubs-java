@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Pipe;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.qpid.proton.engine.BaseHandler;
@@ -16,6 +17,8 @@ import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.reactor.Reactor;
 import org.apache.qpid.proton.reactor.Selectable;
 import org.apache.qpid.proton.reactor.Selectable.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link Reactor} is not thread-safe - all calls to {@link Proton} API's should be - on the Reactor Thread.
@@ -31,12 +34,18 @@ public final class ReactorDispatcher {
     private final Pipe ioSignal;
     private final ConcurrentLinkedQueue<BaseHandler> workQueue;
     private final ScheduleHandler workScheduler;
+    private final UUID blah;
 
+    protected static final Logger TRACE_LOGGER = LoggerFactory.getLogger(ReactorDispatcher.class);
+    
     public ReactorDispatcher(final Reactor reactor) throws IOException {
         this.reactor = reactor;
         this.ioSignal = Pipe.open();
         this.workQueue = new ConcurrentLinkedQueue<>();
         this.workScheduler = new ScheduleHandler();
+        
+        this.blah = UUID.randomUUID();
+        TRACE_LOGGER.info("PIPE CREATION " + this.blah.toString());
 
         initializeSelectable();
     }
@@ -46,7 +55,7 @@ public final class ReactorDispatcher {
 
         schedulerSelectable.setChannel(this.ioSignal.source());
         schedulerSelectable.onReadable(this.workScheduler);
-        schedulerSelectable.onFree(new CloseHandler());
+        schedulerSelectable.onFree(new CloseHandler(this.blah));
 
         schedulerSelectable.setReading(true);
         this.reactor.update(schedulerSelectable);
@@ -106,6 +115,11 @@ public final class ReactorDispatcher {
     }
 
     private final class CloseHandler implements Callback {
+    	private final UUID blah;
+    	CloseHandler(UUID blah) {
+    		this.blah = blah;
+    	}
+    	
         @Override
         public void run(Selectable selectable) {
             try {
@@ -114,17 +128,25 @@ public final class ReactorDispatcher {
             }
 
             try {
-                if (ioSignal.sink().isOpen())
+                if (ioSignal.sink().isOpen()) {
                     ioSignal.sink().close();
+                    TRACE_LOGGER.info("PIPE CLEANUP PHASE 1 " + this.blah.toString());
+                }
             } catch (IOException ignore) {
             }
 
             workScheduler.run(null);
 
             try {
-                if (ioSignal.source().isOpen())
+                if (ioSignal.source().isOpen()) {
                     ioSignal.source().close();
+                    TRACE_LOGGER.info("PIPE CLEANUP PHASE 2A " + this.blah.toString());
+                }
+                else {
+                    TRACE_LOGGER.info("PIPE CLEANUP PHASE 2B " + this.blah.toString());
+                }
             } catch (IOException ignore) {
+                TRACE_LOGGER.info("PIPE CLEANUP PHASE 2C " + this.blah.toString() + ignore.toString());
             }
         }
     }
