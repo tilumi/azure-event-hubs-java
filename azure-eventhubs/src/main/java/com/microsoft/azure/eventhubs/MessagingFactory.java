@@ -130,7 +130,8 @@ public class MessagingFactory extends ClientEntity implements IAmqpConnection, I
                 super.onReactorInit(e);
 
                 final Reactor r = e.getReactor();
-                connection = r.connectionToHost(hostName, ClientConstants.AMQPS_PORT, connectionHandler);
+                // ClientConstants.AMQPS_PORT
+                connection = r.connectionToHost(hostName, 443, connectionHandler);
             }
         });
     }

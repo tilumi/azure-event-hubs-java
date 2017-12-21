@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.microsoft.azure.eventhubs.EventHubClient;
+import com.microsoft.azure.eventhubs.ext.impl.WebSocketImpl;
+import org.apache.qpid.proton.engine.impl.TransportInternal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,15 @@ public final class ConnectionHandler extends BaseHandler {
     public void onConnectionBound(Event event) {
 
         final Transport transport = event.getTransport();
+
+        boolean useWebSockets = true; // todo: pass from ehclient
+        if (useWebSockets) {
+            WebSocketImpl webSocket = new WebSocketImpl();
+            webSocket.configure(
+                    event.getConnection().getHostname(), "/$servicebus/websocket",0, "AMQPWSB10", null, null);
+
+            ((TransportInternal)transport).addTransportLayer(webSocket);
+        }
 
         final SslDomain domain = makeDomain(SslDomain.Mode.CLIENT);
         transport.ssl(domain);

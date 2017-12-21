@@ -44,7 +44,7 @@ public class SendLargeMessageTest extends ApiTestBase
 	@Test()
 	public void sendMsgLargerThan64k() throws EventHubException, InterruptedException, ExecutionException, IOException
 	{
-		this.sendLargeMessageTest(100 * 1024);			
+		this.sendLargeMessageTest(50 * 1024);
 	}
 	
 	@Test(expected = PayloadSizeExceededException.class)
