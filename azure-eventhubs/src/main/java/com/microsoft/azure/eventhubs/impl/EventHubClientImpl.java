@@ -4,17 +4,17 @@
  */
 package com.microsoft.azure.eventhubs.impl;
 
+import com.google.common.base.Joiner;
 import com.microsoft.azure.eventhubs.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 public final class EventHubClientImpl extends ClientEntity implements EventHubClient {
 
+    private static final Logger TRACE_LOGGER = LoggerFactory.getLogger(EventHubClientImpl.class);
     /**
      * It will be truncated to 128 characters
      */
@@ -341,6 +342,14 @@ public final class EventHubClientImpl extends ClientEntity implements EventHubCl
         public void run() {
             CompletableFuture<Map<String, Object>> intermediateFuture = this.mf.getManagementChannel().request(this.mf.getReactorScheduler(), request);
             intermediateFuture.whenComplete((Map<String, Object> result, Throwable error) -> {
+                if(TRACE_LOGGER.isInfoEnabled()) {
+                    if (result != null) {
+                        TRACE_LOGGER.info(Joiner.on(", ").withKeyValueSeparator(": ").join(result));
+                    }
+                    if(error != null) {
+                        TRACE_LOGGER.info(error.getMessage(), error);
+                    }
+                }
                 if ((result != null) && (error == null)) {
                     // Success!
                     ManagementRetry.this.finalFuture.complete(result);
